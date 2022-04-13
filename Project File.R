@@ -35,228 +35,215 @@ bird_data <- rename(bird_data,
                     body_length_mm = Body_length.mm., 
                     altitude = Altitude, 
                     wing_length_mm = Wing_length.mm.,
-                    order = Order, 
-                    family = Family, 
-                    genus = Genus, 
-                    species = Species
+                    order = order, 
+                    family = family, 
+                    genus = genus, 
+                    species = species
                     )
 
 #new variable
 
-add_lm_ratio <- select(bird_data, body_length_mm, body_mass_g)
-
-add_lm_ratio <- mutate(bird_data, 
+bird_data <- mutate(bird_data, 
                          lm_ratio = body_length_mm / body_mass_g)
 
-#filtering data
+#selecting important variables 
 
-add_lm_ratio %/% select(body_mass_g, body_length_mm, alititude,
-                        order, family, genus, species, lm, ratio)
+bird_data_cut <- select(bird_data, body_mass_g, body_length_mm, altitude,
+                        order, family, genus, species, lm_ratio)
 
 # plots -------------------------------------------------------------------
 
 #testing for normal distribution of lm_ratio
-ggplot(data = add_add_lm_ratio) +
+
+ggplot(data = bird_data) +
   geom_histogram(mapping = aes(
-    x = lm_ratio), bins = 50, boundary = 0)
+    x = lm_ratio), 
+    bins = 50, 
+    boundary = 0) +
+  labs(x = "Length Mass Ratio",
+       y = "Number of Birds")+
+  ggsave("lmratio_altitude_scatter.png", 
+         units="in", 
+         height=8, 
+         width=12, 
+         dpi = 300)
  
 
-#ggplot Length Mass Ratio vs Altitude
-ggplot(data = add_lm_ratio) +
+#ggplot lm_ratio vs altitude
+
+ggplot(data = bird_data) +
   geom_point(mapping = aes(
     y = lm_ratio, 
-    x = altitude)
-  )
+    x = altitude))+
+  labs(y = "Length Mass Ratio",
+       x = "Altitude")
 
-#ggplot Length Mass Ratio vs Altitude (color) 
-ggplot(data = add_lm_ratio) +
+
+#ggplot Length Mass Ratio vs altitude (color) 
+
+ggplot(data = bird_data) +
   geom_point(mapping = aes(
     y = lm_ratio, 
     x = altitude, 
-    color = Order), 
-    alpha = 0.1
-  )
+    color = order), 
+    alpha = 0.1) +
+  labs(y = "Length Mass Ratio",
+       x = "Altitude")
 
 #facet wrap graph by order
-ggplot(data = add_lm_ratio) +
+
+ggplot(data = bird_data) +
   geom_point(mapping = aes(
     x = lm_ratio, 
     y = altitude))+
-  facet_wrap(~Order)
+  facet_wrap(~order) +
+  labs(x = "Length Mass Ratio",
+       y = "Altitude")
 
 
 # ln of data ----------------------------------------------------------
 
 #log of lm_ratio to correct right skew 
-add_lm_ratio <-mutate(add_lm_ratio, ln_lmr = log(lm_ratio))
 
-#testing for normal distribution of lm_ratio
-ggplot(data = add_lm_ratio) +
+bird_data <- mutate(bird_data, ln_lmr = log(lm_ratio))
+bird_data_cut <- mutate(bird_data, ln_lmr = log(lm_ratio))
+
+#testing for normal distribution of ln_ratio
+
+ggplot(data = bird_data) +
   geom_histogram(mapping = aes(
-    x = ln_lmr), bins = 100) 
-  
+    x = ln_lmr), 
+    bins = 100) +
+  labs(x = "ln of Length Mass Ratio",
+       y = "Number of Birds")
 
-#testing for normal distribution of lm_ratio
-ggplot(data = add_lm_ratio) +
+#testing for normal distribution of lm_ratio by order
+
+ggplot(data = bird_data) +
   geom_histogram(mapping = aes(
     x = ln_lmr), bins = 100) + 
-  facet_wrap(~Order,scales = "free_y")
+  facet_wrap(~order,scales = "free_y") +
+  labs(y = "Number of Birds",
+       x = "ln of Length Mass Ratio")
 
 
-# length mass lmr plots ---------------------------------------------------
+# altitude vs lm_ratio plots for Passeriformes ---------------------------------------------------
 
-#length mass plot of Anseriformes 
-add_lm_ratio %>% 
-  filter(Order=="Anseriformes") %>% 
-  ggplot() +
-  geom_point(mapping = aes(
-    x = body_length_mm, 
-    y = body_mass_g)
-  )
-#length mass plot for Passeriformes
-add_lm_ratio %>% 
-  filter(Order=="Passeriformes") %>% 
-  ggplot() +
-  geom_point(mapping = aes(
-    x = body_length_mm, 
-    y = body_mass_g)
-  )
+#ln_lmr vs altitude for Passeriformes with regression line
 
-#length mass ratio vs altitude Passeriformes
-add_lm_ratio %>% 
-  filter(Order=="Passeriformes") %>% 
-  ggplot() +
-  geom_point(mapping = aes(
-    x = lm_ratio, 
-    y = altitude)
-  )
-
-#length mass ratio vs altitude Anseriformes
-add_lm_ratio %>% 
-  filter(Order=="Anseriformes") %>% 
-  ggplot() +
-  geom_point(mapping = aes(
-    x = lm_ratio, 
-    y = altitude)
-  )
-
-#ln_lmr vs altitude for Anseriformes
-add_lm_ratio %>% 
-  filter(Order=="Anseriformes") %>% 
-  ggplot() +
-  geom_point(mapping = aes(
-    x = ln_lmr, 
-    y = altitude)
-  )
-
-#ln_lmr vs altitude for Passeriformes
-add_lm_ratio %>% 
-  filter(Order=="Passeriformes") %>% 
+bird_data %>% 
+  filter(order=="Passeriformes") %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
   geom_point() +
-  geom_smooth(method = "loess")
+  geom_smooth(method = "loess") +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
 
+#fit line with altitude > 1000 Passeriformes by family
 
-# passeriformes mean data -------------------------------------------------
-
-#fit line with altitude > 1000 Passeriformes
-add_lm_ratio %>% 
-  filter(Order=="Passeriformes",
+bird_data %>% 
+  filter(order=="Passeriformes",
          altitude >= 1000) %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
-  geom_point(mapping = aes(color = Family)) +
+  geom_point(mapping = aes(color = family)) +
   geom_smooth(method = "loess") +
   geom_text_repel(
-    mapping = aes(label = Family), 
-    data = add_lm_ratio %>% 
-      filter(Order=="Passeriformes",
-             altitude >= 2000)
-  )
-
-# fit line of passeriformes: furnariidea altitude >1000 (color)
-add_lm_ratio %>% 
-  filter(Order=="Passeriformes",
-         Family=="Furnariidae",
-         altitude >= 1000) %>% 
-  ggplot(mapping = aes(
-    y = ln_lmr, 
-    x = altitude)) +
-  geom_point(mapping = aes(color = Species)) +
-  geom_smooth(method = "lm")
+    mapping = aes(label = family), 
+    data = bird_data %>% 
+      filter(order=="Passeriformes",
+             altitude >= 2000)) +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
 
 #fit line of passeriformes: furnariidea altitude >1000 
-add_lm_ratio %>% 
+
+bird_data %>% 
   filter(
-    Order=="Passeriformes",
-    Family=="Furnariidae",
+    order=="Passeriformes",
+    family=="Furnariidae",
     altitude > 1000
   ) %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
 
 # frequency distribution of mean ln_lmr in passeriformes
-add_lm_ratio %>% 
-  filter(Order == "Passeriformes")%>% 
-  group_by(Order, Family, Genus, Species) %>% 
+
+bird_data %>% 
+  filter(order == "Passeriformes")%>% 
+  group_by(order, family, genus, species) %>% 
   summarize(ln_lmr = mean(ln_lmr),
             altitude = mean(altitude)) %>% 
   ggplot() +
-  geom_histogram(aes(x = ln_lmr))
+  geom_histogram(aes(x = ln_lmr)) +
+  labs(y = "Mean Species Length Mass Ratio",
+       x = "ln Length Mass Ratio")
 
-#mean of ln_lmr vs altitude 
-add_lm_ratio %>% 
-  group_by(Order, Family, Genus, Species) %>% 
+#mean of ln_lmr for species vs altitude
+
+bird_data %>% 
+  group_by(order, family, genus, species) %>% 
   summarize(ln_lmr = mean(ln_lmr),
             altitude = mean(altitude)) %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
 
-#mean of ln_lmr vs altitude 
-add_lm_ratio %>% 
-  filter(Genus == "Turdus") %>% 
+#mean of ln_lmr vs altitude for genus Turdus
+
+bird_data %>% 
+  filter(genus == "Turdus") %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude,
-    color = Species)) +
+    color = species)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  xlim(c(0,1700))
+  xlim(c(0,1700)) +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
 
-#mean of ln_lmr vs altitude 
-add_lm_ratio %>% 
-  filter(Genus == "Turdus") %>% 
-  group_by(Species) %>% 
-  summarize(lmr = mean(lm_ratio, na.rm=TRUE),
+#mean ln_lmr by species vs altitude genus Turdus
+
+bird_data %>% 
+  filter(genus == "Turdus") %>% 
+  group_by(species) %>% 
+  summarize(ln_lmr = mean(lm_ratio, na.rm=TRUE),
             altitude = mean(altitude, na.rm=TRUE)) %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
-  geom_point(aes(color = Species), size=5) +
-  geom_smooth(method = "lm")
+  geom_point(aes(color = species), size=5) +
+  geom_smooth(method = "lm") +
+  labs(title = "Genus Turdus",
+       y = "Mean Species ln Length Mass Ratio",
+       x = "Altitude")
+
+# Passeriformes means and t-tests -----------------------------------------------------------------
 
 #table of mean_ln_lmr and mean_altitude passeriformes
+
 passeriformes_means<-
-  add_lm_ratio %>% 
+  bird_data %>% 
   filter(!is.na(altitude), !is.na(ln_lmr)) %>% 
-  group_by(Order, Family, Genus, Species) %>% 
+  group_by(order, family, genus, species) %>% 
   summarize(
     ln_lmr = mean(ln_lmr),
     altitude = mean(altitude)
   ) %>% 
   print()
-
-
-# t-tests -----------------------------------------------------------------
 
 #filter smaller and larger means
 
@@ -270,7 +257,9 @@ mean_hilo <-
     # sem = sd(ln_lmr)/sqrt(n()),
     # upper = ln_lmr + 2*sem,
     # lower = ln_lmr - 2*sem
-  )
+    )
+
+# mean of passeriformes found over and under 1000 m
 
 passeriformes_means %>% 
   mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>%
@@ -278,13 +267,16 @@ passeriformes_means %>%
   geom_histogram() +
   geom_vline(aes(xintercept = mean), data = mean_hilo,
              linetype = "dashed", size = 2, color = "red") +
-  facet_wrap(~ hilo, ncol = 1, scales = "free_y")
+  facet_wrap(~ hilo, ncol = 1, scales = "free_y") +
+  labs( title = "Passeriformes", 
+        x = "Mean ln Length Mass Ratio",
+        y = "Number of Means")
+
+# t test for passeriformes means
 
 passeriformes_means %>% 
   mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>% 
   t.test(ln_lmr ~ hilo, data = .)
-
-
 
 # antilog of means --------------------------------------------------------
 
@@ -293,4 +285,5 @@ exp(2.067247)
 
 #antilog of low
 exp(1.647261)
+
 

@@ -4,8 +4,13 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+# load packages------------------------------------------
+
+
 library(tidyverse)
 library(ggrepel)
+
+# read data ---------------------------------------------
 
 file_url<-"https://esajournals.onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2Fecy.2647&file=ecy2647-sup-0001-DataS1.zip"
 file_name <- basename(file_url)
@@ -13,27 +18,40 @@ file_name <- basename(file_url)
 if (!dir.exists("bird_data")) dir.create("bird_data")
 
 #if (!file.exists(file_name))
+
 download.file(file_url, destfile = "bird_data/bird_data.zip", mode = "wb")
 unzip("bird_data/bird_data.zip", overwrite = TRUE, exdir = "bird_data")
 
 #reading and renaming data
+
 bird_data<-read_csv("bird_data/ATLANTIC_BIRD_TRAITS_completed_2018_11_d05.csv")
 
+
+# clean up data------------------------------------------
+
+
 #renaming variables 
+
 bird_data <- rename(bird_data, 
                     body_mass_g = Body_mass.g., 
                     body_length_mm = Body_length.mm., 
                     altitude = Altitude, 
-                    wing_length_mm = Wing_length.mm.
+                    wing_length_mm = Wing_length.mm.,
+                    order = order, 
+                    family = family, 
+                    genus = genus, 
+                    species = species
                     )
 
 #new variable
-length_vs_mass <- select(bird_data, body_length_mm, body_mass_g)
 
-length_vs_mass <- mutate(bird_data, 
-                         length_mass_ratio = body_length_mm / body_mass_g)
-#log of length_mass_ratio to correct right skew 
-length_vs_mass <-mutate(length_vs_mass, ln_lmr = log(length_mass_ratio))
+bird_data <- mutate(bird_data, 
+                         lm_ratio = body_length_mm / body_mass_g)
+
+#selecting important variables 
+
+bird_data_cut <- select(bird_data, body_mass_g, body_length_mm, altitude,
+                        order, family, genus, species, lm_ratio)
 
 
 ```
@@ -56,25 +74,25 @@ Casey Perkins, Bryn Rivenes
 
 ## Introduction
 
--   **Allen's Rule**: body surface area to volume ratio for animals varies with the average temperature of a creature's habitat (Allen A, 1877)​
+-   Allen's Rule states that body surface area to volume ratio for animals varies with the average temperature of a creature's habitat (Allen A, 1877)​. This rule is based on the idea that an animal in a colder habitat should have a lower surface area so that they do not lose as much heat. Conversely, animals in warmer climates should have larger surface areas to allow more heat to escape.
 
--   The lower the surface area, the less heat can escape, so animals at higher altitudes should have less surface area and a higher body mass​
+-   There are several studies that give evidence for the validity of Allen's Rule. This study showed the major impacts that the environment had on body mass and wing length of birds. They found larger birds were found at higher altitudes (Sun Y, *et al.,* 2022).
 
--   However, some studies have shown this rule to be inaccurate (Alho J, et al. 2010)​
+-   However, there are are also studies that give evidence against Allen's Rule. In one study, it was found that frogs actually had larger surface areas in colder temperatures. The authors suggested there may be a more substantial genetic influence rather than a environment influence (Alho J, et al. 2010).
 
--   We set out to test **Allen's Rule** using an existing data set of bird morphological traits
+-   We set out to test Allen's Rule using an existing data set of bird morphological traits called the Atlantic Birds data set.
 
     ![lmr = -0.13, altitude = 1 1188 m](https://nas-national-prod.s3.amazonaws.com/Masked_Duck_KK_APA_2011_18324_145923_RonBielefeld.jpg "Masked Duck (Nomonyx dominicus)")
 
 ## Methods
 
--   Our data came from **The Atlantic Bird's Data Set**; a data set of bird morphological traits and locations complied over decades by many scientists through museum collections, online data bases, published sources, and unpublished reports for data analysis (Hasui E, et al. 2017)​
+-   The Atlantic Birds data set was complied over decades by many scientists through museum collections, online data bases, published sources, and unpublished reports for data analysis (Hasui E, et al. 2017)​.
 
--   It includes data from **72,483 individual birds** and **780 species**​
+-   The Atlantic Forest is located on the East coast of Brazil and it stretches into Argentina and Paraguay​. This area has significant changes in altitude which we used as our temperature variable.
 
--   The Atlantic Forest is located mostly on the East coast of Brazil, with some of it stretching into Argentina and Paraguay​
+-   We used the length to mass ratio as a proxy for body surface-area-to-volume ratio.
 
--   We use the length to mass ratio as a proxy for body surface-area-to-volume ratio
+-   We used RStudio to compute our data (RStudio Team, 2019). In addition, we used R packages tidyverse (Wickham *et al*., 2019), ggplot2 (Wickham H, 2016) and ggrepel (Slowikowski *et al.*, 2021).
 
     ![](https://talesfromawanderingalbatross.files.wordpress.com/2013/06/mgwa-in-mist-net.jpg)
 
@@ -84,122 +102,200 @@ Casey Perkins, Bryn Rivenes
 
 ## Results
 
+We begin with plotting our entire data set. The data displays a severe right skew.
+
 ```{r, echo=FALSE, warning = FALSE}
-#ggplot Length Mass Ratio vs Altitude
-ggplot(data = length_vs_mass) +
-  geom_point(mapping = aes(
-    y = length_mass_ratio, 
-    x = altitude)) +
-  labs(x = "Altitude",
-       y = "Length:Mass")+
-  theme_gray(base_size = 24) +
-ggsave("lmratio_altitude_scatter.png", units="in", height=8, width=12, dpi = 300)
+# testing for normal distribution of lm_ratio
+ggplot(data = bird_data) +
+  geom_histogram(mapping = aes(
+    x = lm_ratio), 
+    bins = 50, 
+    boundary = 0) +
+  labs(x = "Length Mass Ratio",
+       y = "Number of Birds") 
+
 ```
 
-Figure 1. We ran our mass to length ratio with altitude and found we had very messy data
+To correct for the skew, we transform the data using the natural log of each data point and graph the data again. We observe a hump on the left side of the data.
 
 ```{r echo=FALSE, fig.height=3, fig.width=5, warning=FALSE}
-#testing for normal distribution of length_mass_ratio
-ggplot(data = length_vs_mass) +
+#log of lm_ratio to correct right skew 
+bird_data <- mutate(bird_data, ln_lmr = log(lm_ratio))
+bird_data_cut <- mutate(bird_data, ln_lmr = log(lm_ratio))
+
+#testing for normal distribution of ln_ratio
+
+ggplot(data = bird_data) +
   geom_histogram(mapping = aes(
-    x = length_mass_ratio), bins = 50, boundary = 0)
+    x = ln_lmr), 
+    bins = 100) +
+  labs(x = "ln of Length Mass Ratio",
+       y = "Number of Birds")
+```
+
+To find the source of the hump, we break out each order into it's own graph. From this graph, we can see that the hump is cause by order Anseriformes (ducks). The order that makes up the most of the data set appears to be order Passeriformes (songbirds). In addition, this order appears to have a normal distribution. From this point on, our research will focus on this order to reduce outliers and improve distribution.
+
+```{r}
+#testing for normal distribution of lm_ratio by order
+
+ggplot(data = bird_data) +
+  geom_histogram(mapping = aes(
+    x = ln_lmr), bins = 100) + 
+  facet_wrap(~order,scales = "free_y") +
+  labs(y = "Number of Birds",
+       x = "ln of Length Mass Ratio")
+```
+
+Here we are looking for any trends in the length mass ratio of Passeriformes and we find there is a slight upward trend in the regression line that becomes more pronounced as altitude increases.
+
+```{r, echo=FALSE, warning = FALSE}
+#ln_lmr vs altitude for Passeriformes with regression line
+
+bird_data %>% 
+  filter(order=="Passeriformes") %>% 
+  ggplot(mapping = aes(
+    y = ln_lmr, 
+    x = altitude)) +
+  geom_point() +
+  geom_smooth(method = "loess") +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
+```
+
+  
+
+```{r, echo=FALSE, warning = FALSE}
+#fit line with altitude > 1000 Passeriformes by family
+
+bird_data %>% 
+  filter(order=="Passeriformes",
+         altitude >= 1000) %>% 
+  ggplot(mapping = aes(
+    y = ln_lmr, 
+    x = altitude)) +
+  geom_point(mapping = aes(color = family)) +
+  geom_smooth(method = "loess") +
+  geom_text_repel(
+    mapping = aes(label = family), 
+    data = bird_data %>% 
+      filter(order=="Passeriformes",
+             altitude >= 2000)) +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
 ```
 
 ```{r}
-#seperate by order
-ggplot(data = length_vs_mass) +
-  geom_histogram(mapping = aes(
-    x = length_mass_ratio), bins = 50, boundary = 0) +
-  facet_wrap(~Order, ncol = 5)
-```
+# frequency distribution of mean ln_lmr in passeriformes
 
--   Here we noticed that our data were severely right skewed
+bird_data %>% 
+  filter(order == "Passeriformes")%>% 
+  group_by(order, family, genus, species) %>% 
+  summarize(ln_lmr = mean(ln_lmr),
+            altitude = mean(altitude)) %>% 
+  ggplot() +
+  geom_histogram(aes(x = ln_lmr)) +
+  labs(y = "Mean Species Length Mass Ratio",
+       x = "ln Length Mass Ratio")
 
-```{r, echo=FALSE, warning = FALSE}
-#log of length_mass_ratio to correct right skew 
-length_vs_mass <-mutate(length_vs_mass, ln_lmr = log(length_mass_ratio))
+#mean of ln_lmr for species vs altitude
 
-#testing for normal distribution of ln_lmr
-ggplot(data = length_vs_mass) +
-  geom_histogram(mapping = aes(
-    x = ln_lmr), bins = 100)+ 
-  facet_wrap(~Order)
-```
-
--   We corrected the skew in our data by transforming it by taking the natural log of our data points
-
-```{r, echo=FALSE, warning = FALSE}
-length_vs_mass %>% 
-  filter(
-    Order=="Passeriformes",
-    Family=="Furnariidae",
-  ) %>% 
+bird_data %>% 
+  group_by(order, family, genus, species) %>% 
+  summarize(ln_lmr = mean(ln_lmr),
+            altitude = mean(altitude)) %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm") +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
 
-length_vs_mass %>% 
-  filter(
-    Order=="Passeriformes",
-    Family=="Furnariidae",
-    altitude > 1000
-  ) %>% 
+```
+
+```{r}
+#mean of ln_lmr vs altitude for genus Turdus
+
+bird_data %>% 
+  filter(genus == "Turdus") %>% 
+  ggplot(mapping = aes(
+    y = ln_lmr, 
+    x = altitude,
+    color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  xlim(c(0,1700)) +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
+
+#mean ln_lmr by species vs altitude genus Turdus
+
+bird_data %>% 
+  filter(genus == "Turdus") %>% 
+  group_by(species) %>% 
+  summarize(ln_lmr = mean(lm_ratio, na.rm=TRUE),
+            altitude = mean(altitude, na.rm=TRUE)) %>% 
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
-  geom_point() +
-  geom_smooth(method = "lm")
+  geom_point(aes(color = species), size=5) +
+  geom_smooth(method = "lm") +
+  labs(title = "Genus Turdus",
+       y = "Mean Species ln Length Mass Ratio",
+       x = "Altitude")
 ```
 
--   We plotted the mean lmr for each genus/species and saw a slight upward trend which intensified when we looked exclusivly at altitudes higher than 1000
+```{r}
+#table of mean_ln_lmr and mean_altitude passeriformes
 
-    ```{r, echo=FALSE, warning = FALSE}
-    passeriformes_means<-
-      length_vs_mass %>% 
-      filter(!is.na(altitude), !is.na(ln_lmr)) %>% 
-      group_by(Order, Family, Genus, Species) %>% 
-      summarize(
-        ln_lmr = mean(ln_lmr),
-        altitude = mean(altitude)
-      )  
-    mean_hilo <-
-      passeriformes_means %>% 
-      mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>% 
-      group_by(hilo) %>% 
-      summarize(
-        mean = mean(ln_lmr),
-        # sd = sd(ln_lmr, na.rm = TRUE),
-        # sem = sd(ln_lmr)/sqrt(n()),
-        # upper = ln_lmr + 2*sem,
-        # lower = ln_lmr - 2*sem
-      )
+passeriformes_means<-
+  bird_data %>% 
+  filter(!is.na(altitude), !is.na(ln_lmr)) %>% 
+  group_by(order, family, genus, species) %>% 
+  summarize(
+    ln_lmr = mean(ln_lmr),
+    altitude = mean(altitude)
+  ) %>% 
+  print()
 
-    passeriformes_means %>% 
-      mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>%
-      ggplot(aes(x = ln_lmr)) +
-      geom_histogram() +
-      geom_vline(aes(xintercept = mean), data = mean_hilo,
-                 linetype = "dashed", size = 2, color = "red") +
-      facet_wrap(~ hilo, ncol = 1, scales = "free_y")
+#filter smaller and larger means
 
-    ```
+mean_hilo <-
+  passeriformes_means %>% 
+  mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>% 
+  group_by(hilo) %>% 
+  summarize(
+    mean = mean(ln_lmr),
+    # sd = sd(ln_lmr, na.rm = TRUE),
+    # sem = sd(ln_lmr)/sqrt(n()),
+    # upper = ln_lmr + 2*sem,
+    # lower = ln_lmr - 2*sem
+    )
 
--   We took the mean lmr of birds found over 1000 m and birds found under 1000 and found the means were different
+# mean of passeriformes found over and under 1000 m
 
-    ```{r, include=FALSE, warning = FALSE}
-    passeriformes_means %>% 
-      mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>% 
-      t.test(ln_lmr ~ hilo, data = .)
-    #antilog of hi
-    exp(2.067247)
+passeriformes_means %>% 
+  mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>%
+  ggplot(aes(x = ln_lmr)) +
+  geom_histogram() +
+  geom_vline(aes(xintercept = mean), data = mean_hilo,
+             linetype = "dashed", size = 2, color = "red") +
+  facet_wrap(~ hilo, ncol = 1, scales = "free_y") +
+  labs( title = "Passeriformes", 
+        x = "Mean ln Length Mass Ratio",
+        y = "Number of Means")
+```
 
-    #antilog of low
-    exp(1.647261)
-    ```
+The mean lmr of birds found above 1000 m = 7.9 while the mean lmr of birds found below 1000 m = 5.2. A Welch's Two Sample t-test found t(76) = 3.6, p =0.0005.
 
--   The mean lmr of birds found above 1000 m = 7.9 while the mean lmr of birds found below 1000 m = 5.2. A Welch's Two Sample t-test found t(76) = 3.6, p =0.0005.
+```{r}
+# t test for passeriformes means
+
+passeriformes_means %>% 
+  mutate(hilo = ifelse(altitude>1000, "Above 1000 m", "Below 1000 m")) %>% 
+  t.test(ln_lmr ~ hilo, data = .)
+
+```
 
 -   **Text describing what we did and what it means then back up with figure/graph**
 
@@ -215,7 +311,7 @@ length_vs_mass %>%
 
 -   **Restate findings briefly**
 
--   **talk about what is MEANS**
+-   **talk about what it MEANS**
 
 -   **talk about what we could do with these findings in the future/future experiments**
 
@@ -223,13 +319,26 @@ length_vs_mass %>%
 
 -   Blackburn T, Ruggiero A. Latitude, elevation and body mass variation in Andean passerine birds. Global Ecology and Biography 2001 (cited 2022 Feb 18); 10: 245-259.
 
--   Hasui, É., Metzger, J.P., Pimentel, R.G., Silveira, L.F., Bovo, A.A.d.A., Martensen, A.C., Uezu, A., Regolin, A.L., Bispo de Oliveira, A.Â., Gatto, C.A.F.R., Duca, C., Andretti, C.B., Banks-Leite, C., Luz, D., Mariz, D., Alexandrino, E.R., de Barros, F.M., Martello, F., Pereira, I.M.d.S., da Silva, J.N., Ferraz, K.M.P.M.d.B., Naka, L.N., dos Anjos, L., Efe, M.A., Pizo, M.A., Pichorim, M., Gonçalves, M.S.S., Cordeiro, P.H.C., Dias, R.A., Muylaert, R.d.L., Rodrigues, R.C., da Costa, T.V.V., Cavarzere, V., Tonetti, V.R., Silva, W.R., Jenkins, C.N., Galetti, M. and Ribeiro, M.C. (2018), ATLANTIC BIRDS: a data set of bird species from the Brazilian Atlantic Forest. Ecology, 99: 497-497. <https://doi.org/10.1002/ecy.2119>
+-   **Hasui, É., Metz**ger, J.P., Pimentel, R.G., Silveira, L.F., Bovo, A.A.d.A., Martensen, A.C., Uezu, A., Regolin, A.L., Bispo de Oliveira, A.Â., Gatto, C.A.F.R., Duca, C., Andretti, C.B., Banks-Leite, C., Luz, D., Mariz, D., Alexandrino, E.R., de Barros, F.M., Martello, F., Pereira, I.M.d.S., da Silva, J.N., Ferraz, K.M.P.M.d.B., Naka, L.N., dos Anjos, L., Efe, M.A., Pizo, M.A., Pichorim, M., Gonçalves, M.S.S., Cordeiro, P.H.C., Dias, R.A., Muylaert, R.d.L., Rodrigues, R.C., da Costa, T.V.V., Cavarzere, V., Tonetti, V.R., Silva, W.R., Jenkins, C.N., Galetti, M. and Ribeiro, M.C. (2018), ATLANTIC BIRDS: a data set of bird species from the Brazilian Atlantic Forest. Ecology, 99: 497-497. <https://doi.org/10.1002/ecy.2119>
 
 -   Lamichhaney S, Han F, Berglund J, Wang C, Almén MS, Webster MT, Grant BR, Grant PR, Andersson L. A beak size locus in Darwin's finches facilitated character displacement during a drought. Science. 2016 (cited 2022 Feb 18);352(6284):470-4
 
 -   Landmann A, Winding N. Guild Organization and Morphology of High-Altitude Granivorous and Insectivorous Birds: Convergent Evolution in an Extreme Environment. Oikos. 2995 (cited 2022 Feb 18);73(2):237-250.
 
--   Sun Y, Li M, Song G, Lei F, Li D, Wu Y. The Role of Climate Factors in Geographic Variation in Body Mass and Wing Length in a Passerine Bird. Avian Res. 2017 (cited 2022 Feb 19); 8, 1.
+-   **Lho,** J.S., Herczeg, G., Laugen, A.T., Rasanen, K., Laurila, A. and Merila, J. (2011), Allen's rule revisited: quantitative genetics of extremity length in the common frog along a latitudinal gradient. Journal of Evolutionary Biology, 24: 59-70. <https://doi.org/10.1111/j.1420-9101.2010.02141.x>​
+
+-   **Sun** Y, Li M, Song G, Lei F, Li D, Wu Y. The Role of Climate Factors in Geographic Variation in Body Mass and Wing Length in a Passerine Bird. Avian Res. 2017 (cited 2022 Feb 19); 8, 1.
+
+-   **RStudi**o Team (2019), RStudio: Integrated Development for R. RStudio, Inc., Boston, MA, URL http://www. rstudio.com/.
+
+-   **Wickham** *et al*., (2019). Welcome to the tidyverse. Jounal of Open Source Software, 4(43), 1686, http://doi.org/10.21105/joss.01686
+
+```{=html}
+<!-- -->
+```
+-   **Wickha**m H (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York.
+
+-   **Slowiko**wski *et al.*, (2021). ggrepel. https://githubcom/slowkow/ggrepel
 
 -   **add citations for R, and pkgs used.**
 
@@ -239,4 +348,4 @@ length_vs_mass %>%
 
 -   We would like to thank the original authors of the Atlantic Birds Data Set and all of those who helped compile it through museum collections, online data bases, published sources, and unpublished reports, as well as the people out out in the field who originally collected this data.
 
--   We also would like to thank Dr. Merkord for his guidance with coding and data analyse.
+-   We also would like to thank Dr. Chris Merkord for his guidance with coding and data analisis.

@@ -35,10 +35,10 @@ bird_data <- rename(bird_data,
                     body_length_mm = Body_length.mm., 
                     altitude = Altitude, 
                     wing_length_mm = Wing_length.mm.,
-                    order = order, 
-                    family = family, 
-                    genus = genus, 
-                    species = species
+                    order = Order, 
+                    family = Family, 
+                    genus = Genus, 
+                    species = Species
                     )
 
 #new variable
@@ -62,7 +62,7 @@ ggplot(data = bird_data) +
     boundary = 0) +
   labs(x = "Length Mass Ratio",
        y = "Number of Birds")+
-  ggsave("lmratio_altitude_scatter.png", 
+  ggsave("fig_1.png", 
          units="in", 
          height=8, 
          width=12, 

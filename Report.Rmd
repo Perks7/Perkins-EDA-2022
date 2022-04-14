@@ -4,13 +4,17 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
-# load packages------------------------------------------
+
+# load packages -----------------------------------------
 
 
 library(tidyverse)
 library(ggrepel)
 
-# read data ---------------------------------------------
+
+# read data -------------------------------------------
+
+
 
 file_url<-"https://esajournals.onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2Fecy.2647&file=ecy2647-sup-0001-DataS1.zip"
 file_name <- basename(file_url)
@@ -27,7 +31,7 @@ unzip("bird_data/bird_data.zip", overwrite = TRUE, exdir = "bird_data")
 bird_data<-read_csv("bird_data/ATLANTIC_BIRD_TRAITS_completed_2018_11_d05.csv")
 
 
-# clean up data------------------------------------------
+# clean up data ----------------------------------
 
 
 #renaming variables 
@@ -37,22 +41,27 @@ bird_data <- rename(bird_data,
                     body_length_mm = Body_length.mm., 
                     altitude = Altitude, 
                     wing_length_mm = Wing_length.mm.,
-                    order = order, 
-                    family = family, 
-                    genus = genus, 
-                    species = species
+                    order = Order, 
+                    family = Family, 
+                    genus = Genus, 
+                    species = Species
                     )
 
-#new variable
+#new variables
 
 bird_data <- mutate(bird_data, 
                          lm_ratio = body_length_mm / body_mass_g)
+
+#log of lm_ratio to correct right skew 
+
+bird_data <- mutate(bird_data, ln_lmr = log(lm_ratio))
+bird_data_cut <- mutate(bird_data, ln_lmr = log(lm_ratio))
+
 
 #selecting important variables 
 
 bird_data_cut <- select(bird_data, body_mass_g, body_length_mm, altitude,
                         order, family, genus, species, lm_ratio)
-
 
 ```
 
@@ -82,7 +91,7 @@ Casey Perkins, Bryn Rivenes
 
 -   We set out to test Allen's Rule using an existing data set of bird morphological traits called the Atlantic Birds data set.
 
-    ![lmr = -0.13, altitude = 1 1188 m](https://nas-national-prod.s3.amazonaws.com/Masked_Duck_KK_APA_2011_18324_145923_RonBielefeld.jpg "Masked Duck (Nomonyx dominicus)")
+    <img src="https://nas-national-prod.s3.amazonaws.com/Masked_Duck_KK_APA_2011_18324_145923_RonBielefeld.jpg" title="Masked Duck (Nomonyx dominicus)" alt="lmr = -0.13, altitude = 1 1188 m" width="323"/>
 
 ## Methods
 
@@ -94,11 +103,7 @@ Casey Perkins, Bryn Rivenes
 
 -   We used RStudio to compute our data (RStudio Team, 2019). In addition, we used R packages tidyverse (Wickham *et al*., 2019), ggplot2 (Wickham H, 2016) and ggrepel (Slowikowski *et al.*, 2021).
 
-    ![](https://talesfromawanderingalbatross.files.wordpress.com/2013/06/mgwa-in-mist-net.jpg)
-
--   **discuss getting data/how it was collected and analyzing data**
-
--   **discuss/cite R and pkgs**
+    <img src="https://talesfromawanderingalbatross.files.wordpress.com/2013/06/mgwa-in-mist-net.jpg" width="267"/>
 
 ## Results
 
@@ -133,7 +138,7 @@ ggplot(data = bird_data) +
        y = "Number of Birds")
 ```
 
-To find the source of the hump, we break out each order into it's own graph. From this graph, we can see that the hump is cause by order Anseriformes (ducks). The order that makes up the most of the data set appears to be order Passeriformes (songbirds). In addition, this order appears to have a normal distribution. From this point on, our research will focus on this order to reduce outliers and improve distribution.
+To find the source of the hump, we break out each order into it's own graph. From this graph, we can see that the hump is cause by order Anseriformes (ducks). This makes sense as ducks should have a much smaller length to mass ratio than the majority of birds in the data set. The order that makes up the most of the data set appears to be order Passeriformes (songbirds). In addition, this order appears to have a normal distribution and relatively similar birds. This makes order Passeriformes a good test subject for Allen's Rule.
 
 ```{r}
 #testing for normal distribution of lm_ratio by order
@@ -146,7 +151,7 @@ ggplot(data = bird_data) +
        x = "ln of Length Mass Ratio")
 ```
 
-Here we are looking for any trends in the length mass ratio of Passeriformes and we find there is a slight upward trend in the regression line that becomes more pronounced as altitude increases.
+Here we are looking for any trends in the length mass ratio vs altitude of Passeriformes, and we find there is a slight upward trend in the regression line that becomes more pronounced as altitude increases.
 
 ```{r, echo=FALSE, warning = FALSE}
 #ln_lmr vs altitude for Passeriformes with regression line
@@ -162,27 +167,7 @@ bird_data %>%
        x = "Altitude")
 ```
 
-  
-
-```{r, echo=FALSE, warning = FALSE}
-#fit line with altitude > 1000 Passeriformes by family
-
-bird_data %>% 
-  filter(order=="Passeriformes",
-         altitude >= 1000) %>% 
-  ggplot(mapping = aes(
-    y = ln_lmr, 
-    x = altitude)) +
-  geom_point(mapping = aes(color = family)) +
-  geom_smooth(method = "loess") +
-  geom_text_repel(
-    mapping = aes(label = family), 
-    data = bird_data %>% 
-      filter(order=="Passeriformes",
-             altitude >= 2000)) +
-  labs(y = "ln Length Mass Ratio",
-       x = "Altitude")
-```
+Here we find a relatively normal distribution of mean ln length mass ratio for each species in order Passeriformes. When we run the mean of each species against altitude and add a regression line, we find that there is a positive correlation.
 
 ```{r}
 # frequency distribution of mean ln_lmr in passeriformes
@@ -212,6 +197,30 @@ bird_data %>%
        x = "Altitude")
 
 ```
+
+To get a better look at the trend, we look at birds found only above 1000 meters and color code them by family. They receive a label only if they are found over 2000 meters. We notice six families that appear over 2000 meters.
+
+```{r, echo=FALSE, warning = FALSE}
+#fit line with altitude > 1000 Passeriformes by family
+
+bird_data %>% 
+  filter(order=="Passeriformes",
+         altitude >= 1000) %>% 
+  ggplot(mapping = aes(
+    y = ln_lmr, 
+    x = altitude)) +
+  geom_point(mapping = aes(color = family)) +
+  geom_smooth(method = "loess") +
+  geom_text_repel(
+    mapping = aes(label = family), 
+    data = bird_data %>% 
+      filter(order=="Passeriformes",
+             altitude >= 2000)) +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
+```
+
+Perhaps this trend is a result of including too many genra together. We separate out genus *Turdus* to see if this has an effect on the regression line. While we find that there is a slight downward trend in some of the species means for genus *Turdus*, we do not see this trend when we look at individuals in the genus.
 
 ```{r}
 #mean of ln_lmr vs altitude for genus Turdus
@@ -244,6 +253,8 @@ bird_data %>%
        y = "Mean Species ln Length Mass Ratio",
        x = "Altitude")
 ```
+
+While there does not appear to be any significant trends in this individual genus, we do see significant differences in the mean length mass ratio for each species of order Passeriformes. However, we see the opposite trend that Allen's Rule would predict.
 
 ```{r}
 #table of mean_ln_lmr and mean_altitude passeriformes
@@ -286,7 +297,7 @@ passeriformes_means %>%
         y = "Number of Means")
 ```
 
-The mean lmr of birds found above 1000 m = 7.9 while the mean lmr of birds found below 1000 m = 5.2. A Welch's Two Sample t-test found t(76) = 3.6, p =0.0005.
+The mean lmr of birds found above 1000 m = 7.9 while the mean lmr of birds found below 1000 m = 5.2. A Welch's Two Sample t-test found these results to be significant t(76) = 3.6, p =0.0005.
 
 ```{r}
 # t test for passeriformes means
@@ -329,16 +340,15 @@ passeriformes_means %>%
 
 -   **Sun** Y, Li M, Song G, Lei F, Li D, Wu Y. The Role of Climate Factors in Geographic Variation in Body Mass and Wing Length in a Passerine Bird. Avian Res. 2017 (cited 2022 Feb 19); 8, 1.
 
--   **RStudi**o Team (2019), RStudio: Integrated Development for R. RStudio, Inc., Boston, MA, URL http://www. rstudio.com/.
+-   **RStudi**o Team (2019), RStudio: Integrated Development for R. RStudio, Inc., Boston, MA, URL <http://www>. rstudio.com/.
 
--   **Wickham** *et al*., (2019). Welcome to the tidyverse. Jounal of Open Source Software, 4(43), 1686, http://doi.org/10.21105/joss.01686
+-   **Wickham** *et al*., (2019). Welcome to the tidyverse. Jounal of Open Source Software, 4(43), 1686, <http://doi.org/10.21105/joss.01686>
 
-```{=html}
 <!-- -->
-```
+
 -   **Wickha**m H (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York.
 
--   **Slowiko**wski *et al.*, (2021). ggrepel. https://githubcom/slowkow/ggrepel
+-   **Slowiko**wski *et al.*, (2021). ggrepel. <https://githubcom/slowkow/ggrepel>
 
 -   **add citations for R, and pkgs used.**
 

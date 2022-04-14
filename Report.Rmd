@@ -121,6 +121,8 @@ ggplot(data = bird_data) +
 
 ```
 
+###### Fig. 1: A histogram of the length mass ratio of birds in the data set
+
 To correct for the skew, we transform the data using the natural log of each data point and graph the data again. We observe a hump on the left side of the data.
 
 ```{r echo=FALSE, fig.height=3, fig.width=5, warning=FALSE}
@@ -138,6 +140,8 @@ ggplot(data = bird_data) +
        y = "Number of Birds")
 ```
 
+###### Fig. 2: Histogram of the natural log of length mass ratio of birds in the data set
+
 To find the source of the hump, we break out each order into it's own graph. From this graph, we can see that the hump is cause by order Anseriformes (ducks). This makes sense as ducks should have a much smaller length to mass ratio than the majority of birds in the data set. The order that makes up the most of the data set appears to be order Passeriformes (songbirds). In addition, this order appears to have a normal distribution and relatively similar birds. This makes order Passeriformes a good test subject for Allen's Rule.
 
 ```{r}
@@ -150,6 +154,8 @@ ggplot(data = bird_data) +
   labs(y = "Number of Birds",
        x = "ln of Length Mass Ratio")
 ```
+
+###### Fig. 3: Histogram of the natural log of length to mass ratio of individual bird orders in the data set
 
 Here we are looking for any trends in the length mass ratio vs altitude of Passeriformes, and we find there is a slight upward trend in the regression line that becomes more pronounced as altitude increases.
 
@@ -166,6 +172,8 @@ bird_data %>%
   labs(y = "ln Length Mass Ratio",
        x = "Altitude")
 ```
+
+###### Fig. 4: Scatter plot of order the ln length mass ratio of Passeriformes vs altitude 
 
 Here we find a relatively normal distribution of mean ln length mass ratio for each species in order Passeriformes. When we run the mean of each species against altitude and add a regression line, we find that there is a positive correlation.
 
@@ -195,8 +203,11 @@ bird_data %>%
   geom_smooth(method = "lm") +
   labs(y = "ln Length Mass Ratio",
        x = "Altitude")
-
 ```
+
+###### Fig. 5: Histogram of mean species ln length mass ratio for order Passeriformes
+
+###### Fig. 6: Scatter plot of mean species ln length mass ratio for order Passeriformes with regression line. Error is represented by transparent area
 
 To get a better look at the trend, we look at birds found only above 1000 meters and color code them by family. They receive a label only if they are found over 2000 meters. We notice six families that appear over 2000 meters.
 
@@ -220,9 +231,12 @@ bird_data %>%
        x = "Altitude")
 ```
 
+###### Fig. 7: Scatter plot of order Passeriformes ln length mass ratio vs altitude over 1000 meters colored by family 
+
 Perhaps this trend is a result of including too many genra together. We separate out genus *Turdus* to see if this has an effect on the regression line. While we find that there is a slight downward trend in some of the species means for genus *Turdus*, we do not see this trend when we look at individuals in the genus.
 
 ```{r}
+
 #mean of ln_lmr vs altitude for genus Turdus
 
 bird_data %>% 
@@ -253,6 +267,8 @@ bird_data %>%
        y = "Mean Species ln Length Mass Ratio",
        x = "Altitude")
 ```
+
+###### Fig. 8: 
 
 While there does not appear to be any significant trends in this individual genus, we do see significant differences in the mean length mass ratio for each species of order Passeriformes. However, we see the opposite trend that Allen's Rule would predict.
 

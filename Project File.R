@@ -51,7 +51,7 @@ bird_data <- mutate(bird_data,
 bird_data_cut <- select(bird_data, body_mass_g, body_length_mm, altitude,
                         order, family, genus, species, lm_ratio)
 
-# plots -------------------------------------------------------------------
+# plotting data -------------------------------------------------------------------
 
 #testing for normal distribution of lm_ratio
 
@@ -61,12 +61,12 @@ ggplot(data = bird_data) +
     bins = 50, 
     boundary = 0) +
   labs(x = "Length Mass Ratio",
-       y = "Number of Birds")+
-  ggsave("fig_1.png", 
-         units="in", 
-         height=8, 
-         width=12, 
-         dpi = 300)
+       y = "Number of Birds")
+ggsave("graphs/fig_1.png", 
+       units="in", 
+       height=6, 
+       width=8, 
+       dpi = 300)
  
 
 #ggplot lm_ratio vs altitude
@@ -101,7 +101,7 @@ ggplot(data = bird_data) +
        y = "Altitude")
 
 
-# ln of data ----------------------------------------------------------
+# manipulating data ----------------------------------------------------------
 
 #log of lm_ratio to correct right skew 
 
@@ -127,7 +127,7 @@ ggplot(data = bird_data) +
        x = "ln of Length Mass Ratio")
 
 
-# altitude vs lm_ratio plots for Passeriformes ---------------------------------------------------
+# graphing data ---------------------------------------------------
 
 #ln_lmr vs altitude for Passeriformes with regression line
 
@@ -198,8 +198,14 @@ bird_data %>%
     x = altitude)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(y = "ln Length Mass Ratio",
+  labs(y = "Mean ln Length Mass Ratio",
        x = "Altitude")
+ggsave("graphs/fig_8.png", 
+       units="in", 
+       height=6, 
+       width=8, 
+       dpi = 300)
+
 
 #mean of ln_lmr vs altitude for genus Turdus
 
@@ -231,7 +237,7 @@ bird_data %>%
        y = "Mean Species ln Length Mass Ratio",
        x = "Altitude")
 
-# Passeriformes means and t-tests -----------------------------------------------------------------
+# t-tests -----------------------------------------------------------------
 
 #table of mean_ln_lmr and mean_altitude passeriformes
 

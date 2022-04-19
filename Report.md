@@ -1,20 +1,4 @@
 
-**Notes for code:**
-
--   **show tidied code, spaces, comments, make it readable, be
-    CONSISTANT**
-
--   **filter, mutate, summarize, join (combine data), variables in code
-    and show created variables**
-
--   **use: bar chart, histogram, multiple variables (scatter plot).
-    Label well.**
-
--   **Do a mean and a confidence interval**
-
--   **Include a readme with abstract, author name, and table of
-    content**
-
 # **Morphological Analysis of Birds in the Atlantic Forest of South America**
 
 Casey Perkins, Bryn Rivenes
@@ -32,6 +16,8 @@ Casey Perkins, Bryn Rivenes
     Allen’s Rule. This study showed the major impacts that the
     environment had on body mass and wing length of birds. They found
     larger birds were found at higher altitudes (Sun Y, *et al.,* 2022).
+    Other studies show that body weight increases with altitude
+    (Landmann A and Winding N, 1995)(Blackburn T and Ruggiero A, 2001).
 
 -   However, there are are also studies that give evidence against
     Allen’s Rule. In one study, it was found that frogs actually had
@@ -71,11 +57,15 @@ right skew.
 
 ![](Report_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
+###### Fig. 1: Histogram of the length mass ratio of birds in the data set
+
 To correct for the skew, we transform the data using the natural log of
 each data point and graph the data again. We observe a hump on the left
 side of the data.
 
 ![](Report_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+###### Fig. 2: Histogram of the natural log of length mass ratio of birds in the data set
 
 To find the source of the hump, we break out each order into it’s own
 graph. From this graph, we can see that the hump is cause by order
@@ -88,25 +78,38 @@ Passeriformes a good test subject for Allen’s Rule.
 
 ![](Report_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
+###### Fig. 3: Histogram of the natural log of length to mass ratio of individual bird orders in the data set
+
 Here we are looking for any trends in the length mass ratio vs altitude
 of Passeriformes, and we find there is a slight upward trend in the
 regression line that becomes more pronounced as altitude increases.
 
 ![](Report_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-Here we find a relatively normal distribution of mean ln length mass
-ratio for each species in order Passeriformes. When we run the mean of
-each species against altitude and add a regression line, we find that
-there is a positive correlation.
+###### Fig. 4: Scatter plot of order the ln length mass ratio of Passeriformes vs altitude
 
-![](Report_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->![](Report_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+Here we find a relatively normal distribution of mean ln length mass
+ratio for each species in order Passeriformes.
+
+![](Report_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+###### Fig. 5: Histogram of mean species ln length mass ratio for order Passeriformes
+
+When we run the mean of each species against altitude and add a
+regression line, we find that there is a positive correlation.
+
+![](Report_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+###### Fig. 6: Scatter plot of mean species ln length mass ratio for order Passeriformes with regression line. Error is represented by transparent area
 
 To get a better look at the trend, we look at birds found only above
 1000 meters and color code them by family. They receive a label only if
 they are found over 2000 meters. We notice six families that appear over
 2000 meters.
 
-![](Report_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](Report_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+###### Fig. 7: Scatter plot of order Passeriformes ln length mass ratio vs altitude over 1000 meters colored by family
 
 Perhaps this trend is a result of including too many genra together. We
 separate out genus *Turdus* to see if this has an effect on the
@@ -114,71 +117,55 @@ regression line. While we find that there is a slight downward trend in
 some of the species means for genus *Turdus*, we do not see this trend
 when we look at individuals in the genus.
 
-![](Report_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->![](Report_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](Report_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+###### Fig. 8: Scatter plot of ln length to mass ratio vs altitude by species for genus *Turdus*
+
+When we take the mean ln length to mass ratio of each species in genus
+*Turdus*, we do find a slight downward trend with one outlying species,
+nigreceps.
+
+![](Report_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+###### Fig. 9: Scatter plot of mean ln length to mass ratio vs altitude for all species in genus *Turdus*
 
 While there does not appear to be any significant trends in this
 individual genus, we do see significant differences in the mean length
 mass ratio for each species of order Passeriformes. However, we see the
 opposite trend that Allen’s Rule would predict.
 
-    ## # A tibble: 679 x 6
-    ## # Groups:   order, family, genus [380]
-    ##    order           family       genus         species       ln_lmr altitude
-    ##    <chr>           <chr>        <chr>         <chr>          <dbl>    <dbl>
-    ##  1 Accipitriformes Accipitridae Accipiter     bicolor       0.360     1056 
-    ##  2 Accipitriformes Accipitridae Accipiter     striatus      1.13       914 
-    ##  3 Accipitriformes Accipitridae Amadonastur   lacernulatus -0.134      141.
-    ##  4 Accipitriformes Accipitridae Buteo         brachyurus   -0.124       92 
-    ##  5 Accipitriformes Accipitridae Buteo         nitidus      -0.0893      26 
-    ##  6 Accipitriformes Accipitridae Chondrohierax uncinatus     0.623      943 
-    ##  7 Accipitriformes Accipitridae Geranoaetus   albicaudatus -0.551      846 
-    ##  8 Accipitriformes Accipitridae Geranospiza   caerulescens  0.197      514 
-    ##  9 Accipitriformes Accipitridae Harpagus      diodon        0.608      388 
-    ## 10 Accipitriformes Accipitridae Heterospizias meridionalis -0.402      592.
-    ## # ... with 669 more rows
+![](Report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-![](Report_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+###### Fig. 10: Histogram of the mean ln length to mass ratio for order Passeriformes divided into those found over and under 1000 meters
 
 The mean lmr of birds found above 1000 m = 7.9 while the mean lmr of
 birds found below 1000 m = 5.2. A Welch’s Two Sample t-test found these
 results to be significant t(76) = 3.6, p =0.0005.
 
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  ln_lmr by hilo
-    ## t = 3.6392, df = 75.921, p-value = 0.0004966
-    ## alternative hypothesis: true difference in means between group Above 1000 m and group Below 1000 m is not equal to 0
-    ## 95 percent confidence interval:
-    ##  0.1901300 0.6498424
-    ## sample estimates:
-    ## mean in group Above 1000 m mean in group Below 1000 m 
-    ##                   2.067247                   1.647261
-
--   **Text describing what we did and what it means then back up with
-    figure/graph**
-
--   **add figure legends to each graph (Fig. 1)**
-
 ## Discussion
 
 -   We predicted length mass ratio would decrease with elevation
     however, our analysis and t-test show an increase in length mass
-    ratio with increased elevation​
+    ratio with increased elevation​. Even when separating out an
+    individual species, there was no trend towards fatter, fluffier
+    birds in colder climates. This is the exact opposite of what we
+    would expect to see according to Allen’s Rule.
 
--   This is the exact **opposite** of what we would **e**xpect to see
-    according to **Allen’s Rule** ​
+-   Other studies have found similar results that contradict Allen’s
+    Rule and suggest that the body surface area to volume ratio has a
+    genetic basis rather than an environmental one (Alho J, et
+    al. 2010). For the birds in the Atlantic Forest, this would mean
+    that their length to mass ratio is more depended on their individual
+    genetic makeup rather than the climate they live in.
 
--   Other studies have found similar results that contradict **Allen’s
-    Rule** and suggest that the body surface area to volume ratio has a
-    genetic basis rather than an environmental one (Alho J, et al. 2010)
-
--   **Restate findings briefly**
-
--   **talk about what it MEANS**
-
--   **talk about what we could do with these findings in the
-    future/future experiments**
+-   While we did not find any evidence of Allen’s Rule playing out among
+    order Passeriforms as a whole or genus Turdus as a whole, there may
+    be other factors clouding our data. In a future study, we would like
+    to look at exclusivley non-migratory birds. This would be a control
+    for birds who live in higher altitudes in warmer months and migrate
+    in cooler months. These birds would not need to have a low length to
+    mass ratio because of their migration patterns, but they would cause
+    the mean length to mass ratio of a genus to show an upward trend.
 
 ## References
 
@@ -186,7 +173,7 @@ results to be significant t(76) = 3.6, p =0.0005.
     in Andean passerine birds. Global Ecology and Biography 2001 (cited
     2022 Feb 18); 10: 245-259.
 
--   **Hasui, É., Metz**ger, J.P., Pimentel, R.G., Silveira, L.F., Bovo,
+-   Hasui, É., Metzger, J.P., Pimentel, R.G., Silveira, L.F., Bovo,
     A.A.d.A., Martensen, A.C., Uezu, A., Regolin, A.L., Bispo de
     Oliveira, A.Â., Gatto, C.A.F.R., Duca, C., Andretti, C.B.,
     Banks-Leite, C., Luz, D., Mariz, D., Alexandrino, E.R., de Barros,
@@ -199,44 +186,32 @@ results to be significant t(76) = 3.6, p =0.0005.
     Brazilian Atlantic Forest. Ecology, 99: 497-497.
     <https://doi.org/10.1002/ecy.2119>
 
--   Lamichhaney S, Han F, Berglund J, Wang C, Almén MS, Webster MT,
-    Grant BR, Grant PR, Andersson L. A beak size locus in Darwin’s
-    finches facilitated character displacement during a drought.
-    Science. 2016 (cited 2022 Feb 18);352(6284):470-4
-
 -   Landmann A, Winding N. Guild Organization and Morphology of
     High-Altitude Granivorous and Insectivorous Birds: Convergent
     Evolution in an Extreme Environment. Oikos. 2995 (cited 2022 Feb
     18);73(2):237-250.
 
--   **Lho,** J.S., Herczeg, G., Laugen, A.T., Rasanen, K., Laurila, A.
-    and Merila, J. (2011), Allen’s rule revisited: quantitative genetics
-    of extremity length in the common frog along a latitudinal gradient.
+-   Lho, J.S., Herczeg, G., Laugen, A.T., Rasanen, K., Laurila, A. and
+    Merila, J. (2011), Allen’s rule revisited: quantitative genetics of
+    extremity length in the common frog along a latitudinal gradient.
     Journal of Evolutionary Biology, 24: 59-70.
     <https://doi.org/10.1111/j.1420-9101.2010.02141.x>​
 
--   **Sun** Y, Li M, Song G, Lei F, Li D, Wu Y. The Role of Climate
-    Factors in Geographic Variation in Body Mass and Wing Length in a
-    Passerine Bird. Avian Res. 2017 (cited 2022 Feb 19); 8, 1.
+-   Sun Y, Li M, Song G, Lei F, Li D, Wu Y. The Role of Climate Factors
+    in Geographic Variation in Body Mass and Wing Length in a Passerine
+    Bird. Avian Res. 2017 (cited 2022 Feb 19); 8, 1.
 
--   **RStudi**o Team (2019), RStudio: Integrated Development for R.
-    RStudio, Inc., Boston, MA, URL <http://www>. rstudio.com/.
+-   RStudio Team (2019), RStudio: Integrated Development for R. RStudio,
+    Inc., Boston, MA, URL <http://www>. rstudio.com/.
 
--   **Wickham** *et al*., (2019). Welcome to the tidyverse. Jounal of
-    Open Source Software, 4(43), 1686,
-    <http://doi.org/10.21105/joss.01686>
+-   Wickham *et al*., (2019). Welcome to the tidyverse. Jounal of Open
+    Source Software, 4(43), 1686, <http://doi.org/10.21105/joss.01686>
 
-<!-- -->
-
--   **Wickha**m H (2016). ggplot2: Elegant Graphics for Data Analysis.
+-   Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis.
     Springer-Verlag New York.
 
--   **Slowiko**wski *et al.*, (2021). ggrepel.
+-   Slowikowski *et al.*, (2021). ggrepel.
     <https://githubcom/slowkow/ggrepel>
-
--   **add citations for R, and pkgs used.**
-
--   **cite every source in the text**
 
 ## Acknowledgments
 
@@ -247,4 +222,4 @@ results to be significant t(76) = 3.6, p =0.0005.
     collected this data.
 
 -   We also would like to thank Dr. Chris Merkord for his guidance with
-    coding and data analisis.
+    coding and data analysis.

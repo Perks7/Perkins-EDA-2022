@@ -200,12 +200,6 @@ bird_data %>%
   geom_smooth(method = "lm") +
   labs(y = "Mean ln Length Mass Ratio",
        x = "Altitude")
-ggsave("graphs/fig_8.png", 
-       units="in", 
-       height=6, 
-       width=8, 
-       dpi = 300)
-
 
 #mean of ln_lmr vs altitude for genus Turdus
 
@@ -220,6 +214,26 @@ bird_data %>%
   xlim(c(0,1700)) +
   labs(y = "ln Length Mass Ratio",
        x = "Altitude")
+
+#mean of ln_lmr vs altitude for genus Turdus: flavipes 
+
+bird_data %>% 
+  filter(species == "flavipes") %>% 
+  ggplot(mapping = aes(
+    y = ln_lmr, 
+    x = altitude,
+    color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  xlim(c(0,1700)) +
+  labs(y = "ln Length Mass Ratio",
+       x = "Altitude")
+ggsave("graphs/fig_11.png", 
+       units="in", 
+       height=6, 
+       width=8, 
+       dpi = 300)
+
 
 #mean ln_lmr by species vs altitude genus Turdus
 

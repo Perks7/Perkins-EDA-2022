@@ -30,6 +30,8 @@ Casey Perkins, Bryn Rivenes
 
     <img src="https://nas-national-prod.s3.amazonaws.com/Masked_Duck_KK_APA_2011_18324_145923_RonBielefeld.jpg" title="Masked Duck (Nomonyx dominicus)" alt="lmr = -0.13, altitude = 1 1188 m" width="323"/>
 
+Photo credit: Bielefeld, Ron
+
 ## Methods
 
 -   The Atlantic Birds data set was complied over decades by many
@@ -49,6 +51,8 @@ Casey Perkins, Bryn Rivenes
     ggplot2 (Wickham H, 2016) and ggrepel (Slowikowski *et al.*, 2021).
 
     <img src="https://talesfromawanderingalbatross.files.wordpress.com/2013/06/mgwa-in-mist-net.jpg" width="267"/>
+
+Photo credit: animalia7
 
 ## Results
 
@@ -114,8 +118,8 @@ they are found over 2000 meters. We notice six families that appear over
 Perhaps this trend is a result of including too many genra together. We
 separate out genus *Turdus* to see if this has an effect on the
 regression line. While we find that there is a slight downward trend in
-some of the species means for genus *Turdus*, we do not see this trend
-when we look at individuals in the genus.
+some of the species means for genus *Turdus* (Fig. 9), we do not see
+this trend when we look at the individuals within the genus.
 
 ![](Report_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
@@ -129,14 +133,26 @@ nigreceps.
 
 ###### Fig. 9: Scatter plot of mean ln length to mass ratio vs altitude for all species in genus *Turdus*
 
+Genus *Turdus* contains many migratory species. This could potentially
+have a drastic effect on the length to mass ratio of a bird. We might
+expect a sharper downward trend in length to mass ratio within one
+species that is non-migratory. This is because we cannot know if a
+migratory bird’s body is fitted to it’s colder environment or warmer
+environment. However, even when separating out non-migratory species
+flavipes, we see only an upward trend.
+
+![](Report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+###### Fig. 10: Scatter plot of species flavipes vs altitude with regression line
+
 While there does not appear to be any significant trends in this
 individual genus, we do see significant differences in the mean length
 mass ratio for each species of order Passeriformes. However, we see the
 opposite trend that Allen’s Rule would predict.
 
-![](Report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
-###### Fig. 10: Histogram of the mean ln length to mass ratio for order Passeriformes divided into those found over and under 1000 meters
+###### Fig. 11: Histogram of the mean ln length to mass ratio for order Passeriformes divided into those found over and under 1000 meters
 
 The mean lmr of birds found above 1000 m = 7.9 while the mean lmr of
 birds found below 1000 m = 5.2. A Welch’s Two Sample t-test found these
@@ -159,13 +175,14 @@ results to be significant t(76) = 3.6, p =0.0005.
     genetic makeup rather than the climate they live in.
 
 -   While we did not find any evidence of Allen’s Rule playing out among
-    order Passeriforms as a whole or genus Turdus as a whole, there may
-    be other factors clouding our data. In a future study, we would like
-    to look at exclusivley non-migratory birds. This would be a control
-    for birds who live in higher altitudes in warmer months and migrate
-    in cooler months. These birds would not need to have a low length to
-    mass ratio because of their migration patterns, but they would cause
-    the mean length to mass ratio of a genus to show an upward trend.
+    order Passeriforms as a whole or genus Turdus, there may be other
+    factors clouding our data. In a future study, we would like to look
+    at exclusively non-migratory birds. This would be a control for
+    birds who live at higher altitudes in warmer months and migrate in
+    cooler months, and consequently would not need to have a low length
+    to mass ratio because of their migration patterns, but they would
+    cause the mean length to mass ratio of a genus to show an upward
+    trend.
 
 ## References
 
@@ -223,3 +240,12 @@ results to be significant t(76) = 3.6, p =0.0005.
 
 -   We also would like to thank Dr. Chris Merkord for his guidance with
     coding and data analysis.
+
+## Images
+
+-   Bielefeld, Ron. “Breeding adult male.” audobon.org, 19, 4, 2022,
+    <https://www.audubon.org/field-guide/bird/masked-duck>
+
+-   animalia7. “A MacGillivray’s Warbler in the net.”
+    talesfromawanderingalbatross.com, 4, 19, 2022,
+    <https://talesfromawanderingalbatross.com/2013/06/22/what-is-a-mist-net/>

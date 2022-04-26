@@ -4,7 +4,7 @@
 
 library(tidyverse)
 library(ggrepel)
-
+library(carData)
 
 # read data ---------------------------------------------------------------
 
@@ -149,14 +149,14 @@ bird_data %>%
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude)) +
-  geom_point(mapping = aes(color = family)) +
-  geom_smooth(method = "loess") +
+  geom_point() +
+  geom_smooth(method = "lm") +
   geom_text_repel(
     mapping = aes(label = family), 
     data = bird_data %>% 
       filter(order=="Passeriformes",
              altitude >= 2000)) +
-  labs(y = "ln Length Mass Ratio",
+  labs(y = "ln(Length Mass Ratio)",
        x = "Altitude")
 
 #fit line of passeriformes: furnariidea altitude >1000 
@@ -222,11 +222,11 @@ bird_data %>%
   ggplot(mapping = aes(
     y = ln_lmr, 
     x = altitude,
-    color = species)) +
+    )) +
   geom_point() +
   geom_smooth(method = "lm") +
   xlim(c(0,1700)) +
-  labs(y = "ln Length Mass Ratio",
+  labs(y = "ln (Length Mass Ratio)",
        x = "Altitude")
 ggsave("graphs/fig_11.png", 
        units="in", 
@@ -250,6 +250,28 @@ bird_data %>%
   labs(title = "Genus Turdus",
        y = "Mean Species ln Length Mass Ratio",
        x = "Altitude")
+
+# regression diagnostics -----------------------------------------------------------------
+
+fit <- lm(ln_lmr~altitude, data=bird_data)
+
+# finding outliers
+
+outlierTest(fit)
+qqplot(fit, main="QQ Plot")
+leveragePlots(fit)
+
+# testing for non-nomality 
+
+qqPlot(fit, main="QQ Plot")
+library(MASS)
+sresid <- studres(fit)
+hist(sresid, freq=FALSE,
+     main="Distribution of Studentized Residuals")
+xfit<-seq(min(sresid),max(sresid),length=40)
+yfit<-dnorm(xfit)
+lines(xfit, yfit)
+
 
 # t-tests -----------------------------------------------------------------
 
@@ -305,5 +327,7 @@ exp(2.067247)
 
 #antilog of low
 exp(1.647261)
+
+
 
 

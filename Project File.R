@@ -4,7 +4,7 @@
 
 library(tidyverse)
 library(ggrepel)
-library(carData)
+library(performance)
 
 # read data ---------------------------------------------------------------
 
@@ -44,12 +44,17 @@ bird_data <- rename(bird_data,
 #new variable
 
 bird_data <- mutate(bird_data, 
-                         lm_ratio = body_length_mm / body_mass_g)
+                    lm_ratio = body_length_mm / body_mass_g)
 
 #selecting important variables 
 
 bird_data_cut <- select(bird_data, body_mass_g, body_length_mm, altitude,
                         order, family, genus, species, lm_ratio)
+
+#log of lm_ratio to correct right skew 
+
+bird_data <- mutate(bird_data, ln_lmr = log(lm_ratio))
+bird_data_cut <- mutate(bird_data, ln_lmr = log(lm_ratio))
 
 # plotting data -------------------------------------------------------------------
 
@@ -102,11 +107,6 @@ ggplot(data = bird_data) +
 
 
 # manipulating data ----------------------------------------------------------
-
-#log of lm_ratio to correct right skew 
-
-bird_data <- mutate(bird_data, ln_lmr = log(lm_ratio))
-bird_data_cut <- mutate(bird_data, ln_lmr = log(lm_ratio))
 
 #testing for normal distribution of ln_ratio
 
@@ -253,24 +253,13 @@ bird_data %>%
 
 # regression diagnostics -----------------------------------------------------------------
 
+#creating fit
+
 fit <- lm(ln_lmr~altitude, data=bird_data)
-
-# finding outliers
-
-outlierTest(fit)
-qqplot(fit, main="QQ Plot")
-leveragePlots(fit)
 
 # testing for non-nomality 
 
-qqPlot(fit, main="QQ Plot")
-library(MASS)
-sresid <- studres(fit)
-hist(sresid, freq=FALSE,
-     main="Distribution of Studentized Residuals")
-xfit<-seq(min(sresid),max(sresid),length=40)
-yfit<-dnorm(xfit)
-lines(xfit, yfit)
+check_model(fit)
 
 
 # t-tests -----------------------------------------------------------------

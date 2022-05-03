@@ -173,7 +173,7 @@ To find the source of the hump, we break out each order into it's own graph. Fro
 ggplot(data = bird_data) +
   geom_histogram(mapping = aes(
     x = ln_lmr), bins = 100) + 
-  facet_wrap(~order,scales = "free_y") +
+  facet_wrap(~order) +
   labs(y = "Number of Birds",
        x = "ln(Length Mass Ratio)") +
   theme(strip.text = element_text(size = rel(.6)))
